@@ -36,7 +36,7 @@ export default function PastePage() {
   const [error, setError] = useState("")
 
   useEffect(() => {
-    const encoded = pathname.slice(1) // Remove leading slash
+    const encoded = pathname.slice(1)
     if (encoded) {
       try {
         const obj = Paste.decodeObject(encoded)
@@ -117,7 +117,7 @@ export default function PastePage() {
     <div className="min-h-screen bg-black text-white flex flex-col">
       <main className="flex-grow">
         {error ? (
-          <div className="text-red-500 mb-4">{error}</div>
+          <div className="text-red-500 text-center align-middle items-center mt-[40px] mb-4">{error}</div>
         ) : (
           <Textarea
             value={content}
