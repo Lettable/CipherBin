@@ -1,7 +1,7 @@
 import Gun from 'gun';
 
 const gun = Gun({
-  peers: ['http://localhost:8080']
+  peers: ['https://relay-server-db7s.onrender.com']
 });
 
 export default gun;
