@@ -21,7 +21,6 @@
     "lucide-react": "^0.475.0",
     "monaco-editor": "^0.52.2",
     "next": "15.1.7",
-    "next-pwa": "^5.6.0",
     "prismjs": "^1.29.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

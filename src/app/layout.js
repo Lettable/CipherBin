@@ -3,6 +3,7 @@ import { Kanit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import Head from "next/head";
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 
 const kanit = Kanit({
   subsets: ["latin"],
@@ -22,21 +23,12 @@ export const metadata = {
     description:
       "Share code and text privately with CipherBin – a secure and offline-enabled pastebin built for modern developers.",
     type: "website",
-    images: [
-      {
-        url: "https://your-domain.com/icon.png",
-        width: 1200,
-        height: 630,
-        alt: "CipherBin - Secure Offline Pastebin",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "CipherBin - Secure Offline Pastebin",
     description:
       "A secure, offline-enabled pastebin for sharing code and text privately. Experience modern privacy with CipherBin.",
-    images: ["https://your-domain.com/icon.png"],
   }
 };
 
@@ -64,6 +56,7 @@ export default function RootLayout({ children }) {
       </Head>
       <body className={`${kanit.className} antialiased`}>
         {children}
+        <ServiceWorkerRegistration />
         <Toaster />
       </body>
     </html>
