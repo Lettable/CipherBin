@@ -16,10 +16,6 @@ import AboutDialog from "@/components/AboutDialog"
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration"
 
 export default function PastePage() {
-  const router = useRouter()
-  const pathname = usePathname()
-  const { toast } = useToast()
-
   const [content, setContent] = useState("")
   const [showDialog, setShowDialog] = useState(false)
   const [isPublic, setIsPublic] = useState(true)
@@ -29,15 +25,15 @@ export default function PastePage() {
   const [pasteUrl, setPasteUrl] = useState("")
   const [showUrlDialog, setShowUrlDialog] = useState(false)
   const [showAboutDialog, setShowAboutDialog] = useState(false)
-
-  // For viewing existing pastes
   const [decryptedContent, setDecryptedContent] = useState("")
   const [decryptPassword, setDecryptPassword] = useState("")
   const [showDecryptDialog, setShowDecryptDialog] = useState(false)
   const [error, setError] = useState("")
+  const pathname = usePathname()
+  const { toast } = useToast()
 
   useEffect(() => {
-    const encoded = pathname.slice(1) // Remove leading slash
+    const encoded = pathname.slice(1)
     if (encoded) {
       try {
         const obj = Paste.decodeObject(encoded)
@@ -139,7 +135,7 @@ export default function PastePage() {
             asChild
           >
             <a
-              href="https://github.com/lettable"
+              href="https://github.com/Lettable/CipherBin"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1"

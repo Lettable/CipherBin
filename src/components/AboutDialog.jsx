@@ -69,7 +69,7 @@ const AboutDialog = ({ open, onOpenChange }) => {
           <p>
             If you want to know more, you can find more information on{" "}
             <a
-              href="https://github.com/lettable/"
+              href="https://github.com/Lettable/CipherBin"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#ff79c6] hover:underline"
