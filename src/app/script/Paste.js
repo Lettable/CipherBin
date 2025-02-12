@@ -22,18 +22,13 @@ class Paste {
     }
 
     if (isPublic) {
-      // For public paste: simply Base64‑encode the content.
       this.content = Buffer.from(content, 'utf8').toString('base64');
-      // Use a fixed key for public pastes.
       this._hmacKey = Buffer.from("public-secret", 'utf8');
     } else {
-      // For private paste: encrypt the content using AES‑256‑CBC.
       this.content = this.encryptContent(content, password);
-      // Derive an HMAC key from the password.
       this._hmacKey = crypto.createHash('sha256').update(password).digest();
     }
 
-    // Build the paste object (without signature yet).
     this.pasteObject = {
       content: this.content,
       createdAt: this.createdAt,
@@ -42,7 +37,6 @@ class Paste {
       syntax: this.syntax
     };
 
-    // Compute a signature (HMAC‑SHA256) over the JSON string of the object.
     this.signature = this.computeSignature(this.pasteObject, this._hmacKey);
     this.pasteObject.signature = this.signature;
   }
@@ -84,17 +78,14 @@ class Paste {
     }
   }
 
-  // Static helper to encode a paste object into a Base64 string.
   static encodeObject(pasteObj) {
     return Buffer.from(JSON.stringify(pasteObj), 'utf8').toString('base64');
   }
 
-  // Static helper to decode a Base64 string back to a paste object.
   static decodeObject(encodedStr) {
     return JSON.parse(Buffer.from(encodedStr, 'base64').toString('utf8'));
   }
 
-  // Static helper to decrypt a paste object given a password.
   static decryptPaste(pasteObj, password) {
     if (pasteObj.isPublic) {
       return Buffer.from(pasteObj.content, 'base64').toString('utf8');

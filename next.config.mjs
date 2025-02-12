@@ -3,9 +3,10 @@ import withPWA from 'next-pwa';
 
 const nextConfig = withPWA({
   dest: 'public',
-  disable: process.env.NODE_ENV === 'development' ? true : false,
+  disable: process.env.NODE_ENV === 'development',
   register: true,
   skipWaiting: true,
+  swSrc: '/sw.js',
   runtimeCaching: [
     {
       urlPattern: ({ request }) => request.mode === 'navigate',
