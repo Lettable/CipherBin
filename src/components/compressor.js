@@ -1,79 +1,79 @@
-// import { createDeflate, createInflate } from 'zlib';
-// import { Buffer } from 'buffer';
+import { createDeflate, createInflate } from 'zlib';
+import { Buffer } from 'buffer';
 
-// const BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-// const CHUNK_SIZE = 64 * 1024;
+const BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const CHUNK_SIZE = 64 * 1024;
 
-// export async function compressEncode(content) {
-//   return new Promise((resolve, reject) => {
-//     const deflate = createDeflate({ level: 9 });
-//     const chunks = [];
-//     let result = '';
+export async function compressEncode(content) {
+  return new Promise((resolve, reject) => {
+    const deflate = createDeflate({ level: 9 });
+    const chunks = [];
+    let result = '';
 
-//     deflate.on('data', chunk => chunks.push(chunk));
-//     deflate.on('end', () => {
-//       const buffer = Buffer.concat(chunks);
-//       result = base62Encode(buffer);
-//       resolve(result);
-//     });
-//     deflate.on('error', reject);
+    deflate.on('data', chunk => chunks.push(chunk));
+    deflate.on('end', () => {
+      const buffer = Buffer.concat(chunks);
+      result = base62Encode(buffer);
+      resolve(result);
+    });
+    deflate.on('error', reject);
 
-//     let offset = 0;
-//     const writeNextChunk = () => {
-//       while (offset < content.length) {
-//         const chunk = content.slice(offset, offset + CHUNK_SIZE);
-//         offset += CHUNK_SIZE;
-//         if (!deflate.write(chunk)) {
-//           deflate.once('drain', writeNextChunk);
-//           return;
-//         }
-//       }
-//       deflate.end();
-//     };
+    let offset = 0;
+    const writeNextChunk = () => {
+      while (offset < content.length) {
+        const chunk = content.slice(offset, offset + CHUNK_SIZE);
+        offset += CHUNK_SIZE;
+        if (!deflate.write(chunk)) {
+          deflate.once('drain', writeNextChunk);
+          return;
+        }
+      }
+      deflate.end();
+    };
 
-//     writeNextChunk();
-//   });
-// }
+    writeNextChunk();
+  });
+}
 
-// export async function decompressDecode(encoded) {
-//   return new Promise((resolve, reject) => {
-//     const buffer = base62Decode(encoded);
-//     const inflate = createInflate();
-//     const chunks = [];
-//     let result = '';
+export async function decompressDecode(encoded) {
+  return new Promise((resolve, reject) => {
+    const buffer = base62Decode(encoded);
+    const inflate = createInflate();
+    const chunks = [];
+    let result = '';
 
-//     inflate.on('data', chunk => chunks.push(chunk));
-//     inflate.on('end', () => {
-//       resolve(Buffer.concat(chunks).toString());
-//     });
-//     inflate.on('error', reject);
+    inflate.on('data', chunk => chunks.push(chunk));
+    inflate.on('end', () => {
+      resolve(Buffer.concat(chunks).toString());
+    });
+    inflate.on('error', reject);
 
-//     let offset = 0;
-//     const writeNextChunk = () => {
-//       while (offset < buffer.length) {
-//         const chunk = buffer.slice(offset, offset + CHUNK_SIZE);
-//         offset += CHUNK_SIZE;
-//         if (!inflate.write(chunk)) {
-//           inflate.once('drain', writeNextChunk);
-//           return;
-//         }
-//       }
-//       inflate.end();
-//     };
+    let offset = 0;
+    const writeNextChunk = () => {
+      while (offset < buffer.length) {
+        const chunk = buffer.slice(offset, offset + CHUNK_SIZE);
+        offset += CHUNK_SIZE;
+        if (!inflate.write(chunk)) {
+          inflate.once('drain', writeNextChunk);
+          return;
+        }
+      }
+      inflate.end();
+    };
 
-//     writeNextChunk();
-//   });
-// }
+    writeNextChunk();
+  });
+}
 
-// function base62Encode(buffer) {
-//   let bigInt = BigInt('0x' + buffer.toString('hex'));
-//   let encoded = '';
-//   while (bigInt > 0n) {
-//     encoded = BASE62[Number(bigInt % 62n)] + encoded;
-//     bigInt = bigInt / 62n;
-//   }
-//   return encoded;
-// }
+function base62Encode(buffer) {
+  let bigInt = BigInt('0x' + buffer.toString('hex'));
+  let encoded = '';
+  while (bigInt > 0n) {
+    encoded = BASE62[Number(bigInt % 62n)] + encoded;
+    bigInt = bigInt / 62n;
+  }
+  return encoded;
+}
 
 // function base62Decode(encoded) {
 //   let bigInt = 0n;
@@ -96,115 +96,3 @@
 // //     console.error('Error:', error);
 // //   }
 // // }
-
-
-import { createBrotliCompress, createBrotliDecompress, constants } from 'zlib';
-import { Buffer } from 'buffer';
-
-const BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-const CHUNK_SIZE = 64 * 1024;
-
-/**
- * Encodes a Buffer into a Base62 string.
- * @param {Buffer} buffer - The input buffer.
- * @returns {string} The Base62-encoded string.
- */
-function base62Encode(buffer) {
-  let bigInt = BigInt('0x' + buffer.toString('hex'));
-  let encoded = '';
-  while (bigInt > 0n) {
-    encoded = BASE62[Number(bigInt % 62n)] + encoded;
-    bigInt = bigInt / 62n;
-  }
-  return encoded;
-}
-
-/**
- * Decodes a Base62 string back into a Buffer.
- * @param {string} encoded - The Base62 string.
- * @returns {Buffer} The decoded Buffer.
- */
-function base62Decode(encoded) {
-  let bigInt = 0n;
-  for (const char of encoded) {
-    bigInt = bigInt * 62n + BigInt(BASE62.indexOf(char));
-  }
-  let hex = bigInt.toString(16);
-  if (hex.length % 2) {
-    hex = '0' + hex;
-  }
-  return Buffer.from(hex, 'hex');
-}
-
-/**
- * Compresses and encodes a string using Brotli at maximum quality,
- * then converts the compressed data to a Base62-encoded string.
- * @param {string} content - The string to compress.
- * @returns {Promise<string>} A promise resolving to the Base62 encoded compressed string.
- */
-export async function compressEncode(content) {
-  return new Promise((resolve, reject) => {
-    const brotliOptions = {
-      params: {
-        [constants.BROTLI_PARAM_QUALITY]: 11, // Maximum compression
-      },
-    };
-    const compress = createBrotliCompress(brotliOptions);
-    const chunks = [];
-
-    compress.on('data', (chunk) => chunks.push(chunk));
-    compress.on('end', () => {
-      const buffer = Buffer.concat(chunks);
-      const result = base62Encode(buffer);
-      resolve(result);
-    });
-    compress.on('error', reject);
-
-    let offset = 0;
-    const writeNextChunk = () => {
-      while (offset < content.length) {
-        const chunk = content.slice(offset, offset + CHUNK_SIZE);
-        offset += CHUNK_SIZE;
-        if (!compress.write(chunk)) {
-          compress.once('drain', writeNextChunk);
-          return;
-        }
-      }
-      compress.end();
-    };
-    writeNextChunk();
-  });
-}
-
-/**
- * Decodes and decompresses a Base62 encoded string back to the original text.
- * @param {string} encoded - The Base62 encoded compressed string.
- * @returns {Promise<string>} A promise resolving to the original string.
- */
-export async function decompressDecode(encoded) {
-  return new Promise((resolve, reject) => {
-    const buffer = base62Decode(encoded);
-    const decompress = createBrotliDecompress();
-    const chunks = [];
-
-    decompress.on('data', (chunk) => chunks.push(chunk));
-    decompress.on('end', () => {
-      resolve(Buffer.concat(chunks).toString());
-    });
-    decompress.on('error', reject);
-
-    let offset = 0;
-    const writeNextChunk = () => {
-      while (offset < buffer.length) {
-        const chunk = buffer.slice(offset, offset + CHUNK_SIZE);
-        offset += CHUNK_SIZE;
-        if (!decompress.write(chunk)) {
-          decompress.once('drain', writeNextChunk);
-          return;
-        }
-      }
-      decompress.end();
-    };
-    writeNextChunk();
-  });
-}
