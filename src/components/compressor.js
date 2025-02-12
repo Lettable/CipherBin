@@ -75,13 +75,13 @@ function base62Encode(buffer) {
   return encoded;
 }
 
-// function base62Decode(encoded) {
-//   let bigInt = 0n;
-//   for (const char of encoded) {
-//     bigInt = bigInt * 62n + BigInt(BASE62.indexOf(char));
-//   }
-//   return Buffer.from(bigInt.toString(16), 'hex');
-// }
+function base62Decode(encoded) {
+  let bigInt = 0n;
+  for (const char of encoded) {
+    bigInt = bigInt * 62n + BigInt(BASE62.indexOf(char));
+  }
+  return Buffer.from(bigInt.toString(16), 'hex');
+}
 
 // // async function main() {
 // //   const largeContent = 'A'.repeat(8263);
