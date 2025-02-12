@@ -39,6 +39,7 @@ export default function PastePage() {
       if (encoded) {
         try {
           const mirza = await decompressDecode(encoded);
+          console.log(mirza)
           const obj =  Paste.decodeObject(mirza);
           if (new Date(obj.expiresAt) < new Date()) {
             setError("This paste has expired.");
