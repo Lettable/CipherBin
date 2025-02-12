@@ -119,7 +119,7 @@ export default function PastePage() {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Start typing..."
-            className="w-full min-h-full p-3 bg-black text-white border-0 resize-none focus:outline-none"
+            className="w-full min-h-[95vh] p-3 bg-black text-white border-0 resize-none focus:outline-none"
             style={{ fontSize: '20px', lineHeight: '20px' }}
           />
         )}
