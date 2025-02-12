@@ -3,7 +3,7 @@
 const CACHE_NAME = 'cipherbin-cache-v1';
 const PRECACHE_URLS = [
   '/',
-  '/pragma/Paste.js',
+  '/Paste.js',
   '/favicon.ico',
   '/globals.css',
   '/_next/static/chunks/main.js',
