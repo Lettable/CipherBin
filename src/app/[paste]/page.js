@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast"
 import Paste from "../../../public/Paste"
 import { Textarea } from "@/components/ui/textarea"
 import AboutDialog from "@/components/AboutDialog"
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration"
 
 export default function PastePage() {
   const router = useRouter()
@@ -287,6 +288,7 @@ export default function PastePage() {
       </Dialog>
 
       <AboutDialog open={showAboutDialog} onOpenChange={setShowAboutDialog} />
+      <ServiceWorkerRegistration />
     </div>
   )
 }

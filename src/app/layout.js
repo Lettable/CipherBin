@@ -1,5 +1,5 @@
 import { Kanit } from "next/font/google";
-import "./globals.css";
+import "../../public/globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import Head from "next/head";
 
