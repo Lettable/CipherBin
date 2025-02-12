@@ -10,9 +10,11 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Copy, Github, Info, Lock, Unlock, Clock, Code, Save, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import Paste from "../../../public/Paste"
+import Paste from "../../public/Paste"
 import { Textarea } from "@/components/ui/textarea"
 import AboutDialog from "@/components/AboutDialog"
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration"
+import { compressEncode, decompressDecode } from "../../public/compressor.js"
 
 export default function PastePage() {
   const [content, setContent] = useState("")
@@ -35,7 +37,8 @@ export default function PastePage() {
     const encoded = pathname.slice(1)
     if (encoded) {
       try {
-        const obj = Paste.decodeObject(encoded)
+        const mirza = Paste.decodeObject(encoded)
+        const obj = decompressDecode(mirza)
         if (new Date(obj.expiresAt) < new Date()) {
           setError("This paste has expired.")
           return
@@ -71,7 +74,8 @@ export default function PastePage() {
     try {
       const newPaste = new Paste(content, expiration, isPublic, isPublic ? null : password, syntax)
       const encoded = Paste.encodeObject(newPaste.getObject())
-      const url = `${window.location.origin}/${encoded}`
+      const pragma = compressEncode(encoded)
+      const url = `${window.location.origin}/${pragma}`
       setPasteUrl(url)
       setShowDialog(false)
       setShowUrlDialog(true)
@@ -113,7 +117,7 @@ export default function PastePage() {
     <div className="min-h-screen bg-black text-white flex flex-col">
       <main className="flex-grow">
         {error ? (
-          <div className="text-red-500 text-center align-middle items-center mt-[40px] mb-4">{error}</div>
+          <div className="text-red-500 mb-4">{error}</div>
         ) : (
           <Textarea
             value={content}
@@ -283,6 +287,7 @@ export default function PastePage() {
       </Dialog>
 
       <AboutDialog open={showAboutDialog} onOpenChange={setShowAboutDialog} />
+      <ServiceWorkerRegistration />
     </div>
   )
 }

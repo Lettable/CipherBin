@@ -14,6 +14,7 @@ import Paste from "../../public/Paste"
 import { Textarea } from "@/components/ui/textarea"
 import AboutDialog from "@/components/AboutDialog"
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration"
+import { compressEncode, decompressDecode } from "../../public/compressor.js"
 
 export default function PastePage() {
   const [content, setContent] = useState("")
@@ -36,7 +37,8 @@ export default function PastePage() {
     const encoded = pathname.slice(1)
     if (encoded) {
       try {
-        const obj = Paste.decodeObject(encoded)
+        const mirza = Paste.decodeObject(encoded)
+        const obj = decompressDecode(mirza)
         if (new Date(obj.expiresAt) < new Date()) {
           setError("This paste has expired.")
           return
@@ -72,7 +74,8 @@ export default function PastePage() {
     try {
       const newPaste = new Paste(content, expiration, isPublic, isPublic ? null : password, syntax)
       const encoded = Paste.encodeObject(newPaste.getObject())
-      const url = `${window.location.origin}/${encoded}`
+      const pragma = compressEncode(encoded)
+      const url = `${window.location.origin}/${pragma}`
       setPasteUrl(url)
       setShowDialog(false)
       setShowUrlDialog(true)
