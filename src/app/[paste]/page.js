@@ -14,7 +14,7 @@ import Paste from "../../public/Paste"
 import { Textarea } from "@/components/ui/textarea"
 import AboutDialog from "@/components/AboutDialog"
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration"
-import { compressEncode, decompressDecode } from "../../public/compressor.js"
+import { compressEncode, decompressDecode } from "@/components/compressor.js"
 
 export default function PastePage() {
   const [content, setContent] = useState("")

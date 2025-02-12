@@ -10,11 +10,11 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Copy, Github, Info, Lock, Unlock, Clock, Code, Save, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import Paste from "../../public/Paste"
+import Paste from "../../public/Paste.js"
 import { Textarea } from "@/components/ui/textarea"
 import AboutDialog from "@/components/AboutDialog"
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration"
-import { compressEncode, decompressDecode } from "../../public/compressor.js"
+import { compressEncode, decompressDecode } from "@/components/compressor.js"
 
 export default function PastePage() {
   const [content, setContent] = useState("")

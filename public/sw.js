@@ -3,7 +3,9 @@ const PRECACHE_URLS = [
   '/',
   '/Paste.js',
   '/favicon.ico',
-  '/globals.css'
+  '/globals.css',
+  '/cipher.js',
+  '/compressor.js'
 ];
 
 self.addEventListener('install', (event) => {
