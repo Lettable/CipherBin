@@ -38,8 +38,8 @@ export default function PastePage() {
       const encoded = pathname.slice(1);
       if (encoded) {
         try {
-          const mirza = Paste.decodeObject(encoded);
-          const obj = await decompressDecode(mirza);
+          const mirza = await decompressDecode(encoded);
+          const obj =  Paste.decodeObject(mirza);
           if (new Date(obj.expiresAt) < new Date()) {
             setError("This paste has expired.");
             return;
