@@ -3,7 +3,6 @@ import { Kanit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import Head from "next/head";
-import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 
 const kanit = Kanit({
   subsets: ["latin"],
@@ -56,7 +55,6 @@ export default function RootLayout({ children }) {
       </Head>
       <body className={`${kanit.className} antialiased`}>
         {children}
-        <ServiceWorkerRegistration />
         <Toaster />
       </body>
     </html>
