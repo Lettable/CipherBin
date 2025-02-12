@@ -1,7 +1,17 @@
-// lib/Paste.js
+/*
+* Copyright 2025 Mirza
+*
+* All Rights Reserved.
+*
+* This code is proprietary and confidential. No part of this code may be used, copied, modified, or distributed without the express written permission of Mirza.
+*
+* For inquiries, please contact: t.me/mirzyave
+*/
+
 import crypto from 'crypto';
 
 class Paste {
+  
   /**
    * Create a new Paste.
    *
@@ -10,7 +20,8 @@ class Paste {
    * @param {boolean} isPublic - If true, no encryption is done.
    * @param {string|null} password - Required if isPublic is false.
    * @param {string} syntax - Language or syntax (e.g., "javascript", "python").
-   */
+  */
+ 
   constructor(content, expiresAt, isPublic, password, syntax) {
     this.createdAt = new Date().toISOString();
     this.expiresAt = expiresAt;
