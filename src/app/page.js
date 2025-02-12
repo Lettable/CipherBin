@@ -100,7 +100,7 @@ export default function PastePage() {
           });
         }
       });
-      const url = `${window.location.origin}/#${uuid}`;
+      const url = `${window.location.origin}/${uuid}`;
       setPasteUrl(url);
       setShowDialog(false);
       setShowUrlDialog(true);
@@ -194,15 +194,6 @@ export default function PastePage() {
           >
             <div className="flex items-center gap-1">
               <span className="text-xl">[Save Paste]</span>
-            </div>
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-neutral-400 hover:bg-[#666767] hover:text-white transition-colors duration-0 rounded-none"
-            onClick={() => router.push("/")}
-          >
-            <div className="flex items-center gap-1">
-              <span className="text-xl">[New Paste]</span>
             </div>
           </Button>
         </div>

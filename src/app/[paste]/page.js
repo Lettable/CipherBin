@@ -100,7 +100,7 @@ export default function PastePage() {
           });
         }
       });
-      const url = `${window.location.origin}/#${uuid}`;
+      const url = `${window.location.origin}/${uuid}`;
       setPasteUrl(url);
       setShowDialog(false);
       setShowUrlDialog(true);
