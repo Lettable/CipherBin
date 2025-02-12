@@ -34,28 +34,31 @@ export default function PastePage() {
   const { toast } = useToast()
 
   useEffect(() => {
-    const encoded = pathname.slice(1)
-    if (encoded) {
-      try {
-        const mirza = decompressDecode(encoded)
-        const obj = Paste.decodeObject(mirza)
-        if (new Date(obj.expiresAt) < new Date()) {
-          setError("This paste has expired.")
-          return
+    async function decodePaste() {
+      const encoded = pathname.slice(1);
+      if (encoded) {
+        try {
+          const mirza = await decompressDecode(encoded);
+          const obj = Paste.decodeObject(mirza);
+          if (new Date(obj.expiresAt) < new Date()) {
+            setError("This paste has expired.");
+            return;
+          }
+          if (obj.isPublic) {
+            const content = Buffer.from(obj.content, "base64").toString("utf8");
+            setContent(content);
+            setDecryptedContent(content);
+            setSyntax(obj.syntax);
+          } else {
+            setShowDecryptDialog(true);
+          }
+        } catch (e) {
+          setError("Invalid paste URL.");
         }
-        if (obj.isPublic) {
-          const content = Buffer.from(obj.content, "base64").toString("utf8")
-          setContent(content)
-          setDecryptedContent(content)
-          setSyntax(obj.syntax)
-        } else {
-          setShowDecryptDialog(true)
-        }
-      } catch (e) {
-        setError("Invalid paste URL.")
       }
     }
-  }, [pathname])
+    decodePaste();
+  }, [pathname]);  
 
   const handleCreatePaste = () => {
     if (!content.trim()) {
@@ -69,24 +72,24 @@ export default function PastePage() {
     setShowDialog(true)
   }
 
-  const handleSavePaste = () => {
-    const expiration = expiresAt ? new Date(expiresAt).toISOString() : "9999-12-31T23:59:59Z"
+  const handleSavePaste = async () => {
+    const expiration = expiresAt ? new Date(expiresAt).toISOString() : "9999-12-31T23:59:59Z";
     try {
-      const newPaste = new Paste(content, expiration, isPublic, isPublic ? null : password, syntax)
-      const encoded = Paste.encodeObject(newPaste.getObject())
-      const pragma = compressEncode(encoded)
-      const url = `${window.location.origin}/${pragma}`
-      setPasteUrl(url)
-      setShowDialog(false)
-      setShowUrlDialog(true)
+      const newPaste = new Paste(content, expiration, isPublic, isPublic ? null : password, syntax);
+      const encoded = Paste.encodeObject(newPaste.getObject());
+      const pragma = await compressEncode(encoded);
+      const url = `${window.location.origin}/${pragma}`;
+      setPasteUrl(url);
+      setShowDialog(false);
+      setShowUrlDialog(true);
     } catch (error) {
       toast({
         title: "Error",
         description: error.message,
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const handleDecrypt = () => {
     try {
