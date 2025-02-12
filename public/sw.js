@@ -6,8 +6,6 @@ const PRECACHE_URLS = [
   '/Paste.js',
   '/favicon.ico',
   '/globals.css',
-  '/_next/static/chunks/main.js',
-  '/.next/static/chunks/main.js',
 ];
 
 self.addEventListener('install', (event) => {
