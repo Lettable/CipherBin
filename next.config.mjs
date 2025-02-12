@@ -6,7 +6,7 @@ const nextConfig = withPWA({
   disable: process.env.NODE_ENV === 'development',
   register: true,
   skipWaiting: true,
-  swSrc: '/sw.js',
+  swSrc: '/script/sw.js',
 });
 
 export default nextConfig;
