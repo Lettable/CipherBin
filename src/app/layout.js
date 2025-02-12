@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect } from "react";
 import { Kanit } from "next/font/google";
 import "./globals.css";
