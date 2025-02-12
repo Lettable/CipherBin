@@ -29,6 +29,7 @@ export default function PastePage() {
   const [decryptPassword, setDecryptPassword] = useState("")
   const [showDecryptDialog, setShowDecryptDialog] = useState(false)
   const [error, setError] = useState("")
+  const router = useRouter()
   const pathname = usePathname()
   const { toast } = useToast()
 
@@ -167,6 +168,15 @@ export default function PastePage() {
           >
             <div className="flex items-center gap-1">
               <span className="text-xl">[Save Paste]</span>
+            </div>
+          </Button>
+          <Button
+            variant="ghost"
+            className="text-neutral-400 hover:bg-[#666767] hover:text-white transition-colors duration-0 rounded-none"
+            onClick={() => router.push("/")}
+          >
+            <div className="flex items-center gap-1">
+              <span className="text-xl">[New Paste]</span>
             </div>
           </Button>
         </div>
