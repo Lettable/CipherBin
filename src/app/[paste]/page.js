@@ -14,6 +14,14 @@ import Paste from "@/components/Paste"
 import { Textarea } from "@/components/ui/textarea"
 import AboutDialog from "@/components/AboutDialog"
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration"
+import gun from "@/lib/gun"
+
+const generateUUID = () => {
+  return crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random()*16|0, v = c=='x' ? r : (r&0x3|0x8);
+    return v.toString(16);
+  });
+};
 
 export default function PastePage() {
   const [content, setContent] = useState("")
@@ -35,29 +43,35 @@ export default function PastePage() {
 
   useEffect(() => {
     async function decodePaste() {
-      const encoded = pathname.slice(1);
-      if (encoded) {
-        try {
-          const obj = Paste.decodeObject(encoded);
-          if (new Date(obj.expiresAt) < new Date()) {
-            setError("This paste has expired.");
+      const uuid = pathname.slice(1);
+      if (uuid) {
+        gun.get('pastes').get(uuid).on((data) => {
+          if (!data || !data.encoded) {
+            setError("Paste not found.");
             return;
           }
-          if (obj.isPublic) {
-            const content = Buffer.from(obj.content, "base64").toString("utf8");
-            setContent(content);
-            setDecryptedContent(content);
-            setSyntax(obj.syntax);
-          } else {
-            setShowDecryptDialog(true);
+          try {
+            const obj = Paste.decodeObject(data.encoded);
+            if (new Date(obj.expiresAt) < new Date()) {
+              setError("This paste has expired.");
+              return;
+            }
+            if (obj.isPublic) {
+              const content = Buffer.from(obj.content, "base64").toString("utf8");
+              setContent(content);
+              setDecryptedContent(content);
+              setSyntax(obj.syntax);
+            } else {
+              setShowDecryptDialog(true);
+            }
+          } catch (e) {
+            setError("Invalid paste data.");
           }
-        } catch (e) {
-          setError("Invalid paste URL.");
-        }
+        });
       }
     }
     decodePaste();
-  }, [pathname]);  
+  }, [pathname]);
 
   const handleCreatePaste = () => {
     if (!content.trim()) {
@@ -76,7 +90,17 @@ export default function PastePage() {
     try {
       const newPaste = new Paste(content, expiration, isPublic, isPublic ? null : password, syntax);
       const encoded = Paste.encodeObject(newPaste.getObject());
-      const url = `${window.location.origin}/${encoded}`;
+      const uuid = generateUUID();
+      gun.get('pastes').get(uuid).put({ encoded }, (ack) => {
+        if (ack.err) {
+          toast({
+            title: "Error",
+            description: ack.err,
+            variant: "destructive",
+          });
+        }
+      });
+      const url = `${window.location.origin}/#${uuid}`;
       setPasteUrl(url);
       setShowDialog(false);
       setShowUrlDialog(true);
@@ -91,20 +115,22 @@ export default function PastePage() {
 
   const handleDecrypt = () => {
     try {
-      const obj = Paste.decodeObject(pathname.slice(1))
-      const content = Paste.decryptPaste(obj, decryptPassword)
-      setContent(content)
-      setDecryptedContent(content)
-      setSyntax(obj.syntax)
-      setShowDecryptDialog(false)
+      const uuid = pathname.slice(1);
+      const data = gun.get('pastes').get(uuid);
+      const obj = Paste.decodeObject(data.encoded);
+      const content = Paste.decryptPaste(obj, decryptPassword);
+      setContent(content);
+      setDecryptedContent(content);
+      setSyntax(obj.syntax);
+      setShowDecryptDialog(false);
     } catch (e) {
       toast({
         title: "Error",
         description: "Incorrect password",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text)
