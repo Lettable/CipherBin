@@ -223,7 +223,6 @@ export default function PastePage() {
       </Dialog>
 
       <AboutDialog open={showAboutDialog} onOpenChange={setShowAboutDialog} />
-      <ServiceWorkerRegistration />
     </div>
   )
 }

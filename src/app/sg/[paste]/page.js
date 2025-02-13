@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label"
 import { Copy, Github, Info, Lock, Unlock, Clock, Code, Save, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import Paste from "../../../../public/Paste"
+import Paste from "../../../../public/scripts/Paste"
 import { Textarea } from "@/components/ui/textarea"
 import AboutDialog from "@/components/AboutDialog"
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration"
@@ -167,7 +167,6 @@ export default function PastePage() {
             </Dialog>
 
             <AboutDialog open={showAboutDialog} onOpenChange={setShowAboutDialog} />
-            <ServiceWorkerRegistration />
         </div>
     )
 }

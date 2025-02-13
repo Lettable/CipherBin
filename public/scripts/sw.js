@@ -1,12 +1,13 @@
 const CACHE_NAME = 'cipherbin-cache-v2';
 const PRECACHE_URLS = [
   '/',
-  '/sg/',
-  '/Paste.js',
-  '/favicon.ico',
+  '/sc/mirza',
+  '/sg/mirza',
+  '/scripts/Paste.js',
+  '/scripts/favicon.ico',
   '/globals.css',
-  '/cipher.js',
-  '/compressor.js'
+  '/scripts/cipher.js',
+  '/scripts/compressor.js'
 ];
 
 self.addEventListener('install', (event) => {
