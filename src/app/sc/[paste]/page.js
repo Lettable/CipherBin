@@ -58,7 +58,11 @@ export default function PastePage() {
 
   useEffect(() => {
     async function decodePaste() {
-      const uuid = pathname.slice(1);
+      let uuid = pathname.slice(1);
+      const prefix = "sc/";
+      if (uuid.startsWith(prefix)) {
+        uuid = uuid.slice(prefix.length);
+      }
       if (!uuid) return;
 
       const localEncoded = getLocalPasteEncoded(uuid);
