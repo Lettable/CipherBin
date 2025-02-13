@@ -5,23 +5,14 @@ import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { Copy, Github, Info, Lock, Unlock, Clock, Code, Save, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import Paste from "@/components/Paste"
 import { Textarea } from "@/components/ui/textarea"
 import AboutDialog from "@/components/AboutDialog"
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration"
-import gun from "@/lib/gun"
 
-const generateUUID = () => {
-    return crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-};
 
 export default function PastePage() {
     const [content, setContent] = useState("")
@@ -82,15 +73,6 @@ export default function PastePage() {
         }
     }
 
-
-    const copyToClipboard = (text) => {
-        navigator.clipboard.writeText(text)
-        toast({
-            title: "Copied!",
-            description: "URL copied to clipboard",
-        })
-    }
-
     return (
         <div className="min-h-screen bg-black text-white flex flex-col">
             <main className="flex-grow">
@@ -110,9 +92,9 @@ export default function PastePage() {
             <footer className="bg-[#333333] p-0 flex justify-between items-center">
                 {/* Left Group: GitHub and About */}
                 <div className="flex items-center rounded-none">
-                    <div className="flex items-center space-x-4">
-                        <span className="text-neutral-400">Length: {content.length}</span>
-                        <span className="text-neutral-400">Lines: {content.split("\n").length}</span>
+                    <div className="flex items-center gap-2 space-x-4">
+                        <span className="ml-2 text-xl text-neutral-400">Length: {content.length}</span>
+                        <span className="ml-2 text-xl text-neutral-400">Lines: {content.split("\n").length}</span>
                     </div>
                     <Button
                         variant="ghost"
@@ -152,93 +134,6 @@ export default function PastePage() {
                     </Button>
                 </div>
             </footer>
-
-            <Dialog open={showDialog} onOpenChange={setShowDialog}>
-                <DialogContent className="bg-[#333333] text-white border-0">
-                    <DialogHeader>
-                        <DialogTitle>Create New Paste</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="public" className="flex items-center gap-2">
-                                {isPublic ? <Unlock className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
-                                {isPublic ? "Public Paste" : "Private Paste"}
-                            </Label>
-                            <Switch id="public" checked={isPublic} onCheckedChange={setIsPublic} />
-                        </div>
-                        {!isPublic && (
-                            <div className="space-y-2">
-                                <Label htmlFor="password" className="flex items-center gap-2">
-                                    <Lock className="w-5 h-5" />
-                                    Password
-                                </Label>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="bg-black border-neutral-800"
-                                />
-                            </div>
-                        )}
-                        <div className="space-y-2">
-                            <Label htmlFor="expires" className="flex items-center gap-2">
-                                <Clock className="w-5 h-5" />
-                                Expires At (Optional)
-                            </Label>
-                            <Input
-                                id="expires"
-                                type="datetime-local"
-                                value={expiresAt}
-                                onChange={(e) => setExpiresAt(e.target.value)}
-                                className="bg-black border-neutral-800"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="syntax" className="flex items-center gap-2">
-                                <Code className="w-5 h-5" />
-                                Syntax
-                            </Label>
-                            <Select value={syntax} onValueChange={setSyntax}>
-                                <SelectTrigger className="bg-black border-neutral-800">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent className="bg-[#333333] text-white border-neutral-800">
-                                    <SelectItem value="plaintext">Plain Text</SelectItem>
-                                    <SelectItem value="javascript">JavaScript</SelectItem>
-                                    <SelectItem value="python">Python</SelectItem>
-                                    <SelectItem value="html">HTML</SelectItem>
-                                    <SelectItem value="css">CSS</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setShowDialog(false)} className="flex text-black items-center gap-2">
-                            <X className="w-5 h-5" />
-                            Cancel
-                        </Button>
-                        <Button onClick={handleSavePaste} className="flex items-center gap-2">
-                            <Save className="w-5 h-5" />
-                            Save Paste
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
-            <Dialog open={showUrlDialog} onOpenChange={setShowUrlDialog}>
-                <DialogContent className="bg-[#333333] text-white border-0">
-                    <DialogHeader>
-                        <DialogTitle>Paste Created Successfully</DialogTitle>
-                    </DialogHeader>
-                    <div className="flex gap-2">
-                        <Input value={pasteUrl} readOnly className="bg-black border-0" />
-                        <Button size="icon" onClick={() => copyToClipboard(pasteUrl)}>
-                            <Copy className="w-5 h-5" />
-                        </Button>
-                    </div>
-                </DialogContent>
-            </Dialog>
 
             <Dialog open={showDecryptDialog} onOpenChange={setShowDecryptDialog}>
                 <DialogContent className="bg-[#333333] text-white border-0">

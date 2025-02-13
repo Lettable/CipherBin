@@ -187,9 +187,9 @@ export default function PastePage() {
       <footer className="bg-[#333333] p-0 flex justify-between items-center">
         {/* Left Group: GitHub and About */}
         <div className="flex items-center rounded-none">
-          <div className="flex items-center space-x-4">
-            <span className="text-neutral-400">Length: {content.length}</span>
-            <span className="text-neutral-400">Lines: {content.split("\n").length}</span>
+          <div className="flex items-center gap-2 space-x-4">
+            <span className="ml-2 text-xl text-neutral-400">Length: {content.length}</span>
+            <span className="ml-2 text-xl text-neutral-400">Lines: {content.split("\n").length}</span>
           </div>
           <Button
             variant="ghost"
