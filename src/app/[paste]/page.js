@@ -114,23 +114,37 @@ export default function PastePage() {
   };
 
   const handleDecrypt = () => {
-    try {
-      const uuid = pathname.slice(1);
-      const data = gun.get('pastes').get(uuid);
-      const obj = Paste.decodeObject(data.encoded);
-      const content = Paste.decryptPaste(obj, decryptPassword);
-      setContent(content);
-      setDecryptedContent(content);
-      setSyntax(obj.syntax);
-      setShowDecryptDialog(false);
-    } catch (e) {
-      toast({
-        title: "Error",
-        description: "Incorrect password",
-        variant: "destructive",
-      });
-    }
+    const uuid = pathname.slice(1);
+    gun.get('pastes').get(uuid).once((data) => {
+      if (!data || !data.encoded) {
+        toast({
+          title: "Error",
+          description: "Paste not found.",
+          variant: "destructive",
+        });
+        return;
+      }
+      try {
+        const obj = Paste.decodeObject(data.encoded);
+        const content = Paste.decryptPaste(obj, decryptPassword);
+        console.log('UUID', uuid);
+        console.log('Data', data);
+        console.log('OBJ', obj);
+        console.log('Content', content);
+        setContent(content);
+        setDecryptedContent(content);
+        setSyntax(obj.syntax);
+        setShowDecryptDialog(false);
+      } catch (e) {
+        toast({
+          title: "Error",
+          description: "Incorrect password",
+          variant: "destructive",
+        });
+      }
+    });
   };
+  
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text)
