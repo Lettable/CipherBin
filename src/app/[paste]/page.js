@@ -48,6 +48,7 @@ export default function PastePage() {
       const gunData = JSON.parse(gunDataStr);
       const pasteKey = `pastes/${uuid}`;
       if (gunData && gunData[pasteKey] && gunData[pasteKey].encoded) {
+        console.log('Paste Obj from LocalStorage', gunData[pasteKey])
         return gunData[pasteKey];
       }
     } catch (e) {
@@ -77,6 +78,7 @@ export default function PastePage() {
           }
           return;
         }
+        console.log('Data', data)
         processData(data);
       });
     }
@@ -84,6 +86,7 @@ export default function PastePage() {
     function processData(data) {
       try {
         const obj = Paste.decodeObject(data.encoded);
+        console.log('OBJ', obj)
         if (new Date(obj.expiresAt) < new Date()) {
           setError("This paste has expired.");
           return;
@@ -103,8 +106,6 @@ export default function PastePage() {
 
     decodePaste();
   }, [pathname]);
-
-
 
   const handleCreatePaste = () => {
     if (!content.trim()) {
