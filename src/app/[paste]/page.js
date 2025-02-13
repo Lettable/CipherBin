@@ -48,7 +48,7 @@ export default function PastePage() {
       const gunData = JSON.parse(gunDataStr);
       const pasteKey = `pastes/${uuid}`;
       if (gunData && gunData[pasteKey] && gunData[pasteKey].encoded) {
-        return gunData[pasteKey].encoded;
+        return gunData[pasteKey];
       }
     } catch (e) {
       console.error("Error parsing Gun data from localStorage:", e);
@@ -59,20 +59,26 @@ export default function PastePage() {
   useEffect(() => {
     async function decodePaste() {
       const uuid = pathname.slice(1);
-      if (uuid) {
-        gun.get('pastes').get(uuid).once((data) => {
-          if (!data || !data.encoded) {
-            const localEncoded = getLocalPasteEncoded(uuid);
-            if (localEncoded) {
-              processData({ encoded: localEncoded });
-            } else {
-              setError("Paste not found.");
-            }
-            return;
-          }
-          processData(data);
-        });
+      if (!uuid) return;
+
+      const localEncoded = getLocalPasteEncoded(uuid);
+      if (localEncoded && localEncoded.encoded) {
+        processData(localEncoded);
+        return;
       }
+
+      gun.get('pastes').get(uuid).once((data) => {
+        if (!data || !data.encoded) {
+          const localEncoded = getLocalPasteEncoded(uuid);
+          if (localEncoded && localEncoded.encoded) {
+            processData(localEncoded);
+          } else {
+            setError("Paste not found.");
+          }
+          return;
+        }
+        processData(data);
+      });
     }
 
     function processData(data) {
@@ -97,6 +103,7 @@ export default function PastePage() {
 
     decodePaste();
   }, [pathname]);
+
 
 
   const handleCreatePaste = () => {
