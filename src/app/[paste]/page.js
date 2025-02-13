@@ -127,10 +127,6 @@ export default function PastePage() {
       try {
         const obj = Paste.decodeObject(data.encoded);
         const content = Paste.decryptPaste(obj, decryptPassword);
-        console.log('UUID', uuid);
-        console.log('Data', data);
-        console.log('OBJ', obj);
-        console.log('Content', content);
         setContent(content);
         setDecryptedContent(content);
         setSyntax(obj.syntax);
