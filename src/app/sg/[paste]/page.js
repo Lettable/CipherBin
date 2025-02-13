@@ -33,27 +33,31 @@ export default function PastePage() {
     const { toast } = useToast()
 
     useEffect(() => {
-        const encoded = pathname.slice(1)
+        let encoded = pathname.slice(1);
+        const prefix = "sg/";
+        if (encoded.startsWith(prefix)) {
+            encoded = encoded.slice(prefix.length);
+        }
         if (encoded) {
             try {
-                const obj = Paste.decodeObject(encoded)
+                const obj = Paste.decodeObject(encoded);
                 if (new Date(obj.expiresAt) < new Date()) {
-                    setError("This paste has expired.")
-                    return
+                    setError("This paste has expired.");
+                    return;
                 }
                 if (obj.isPublic) {
-                    const content = Buffer.from(obj.content, "base64").toString("utf8")
-                    setContent(content)
-                    setDecryptedContent(content)
-                    setSyntax(obj.syntax)
+                    const content = Buffer.from(obj.content, "base64").toString("utf8");
+                    setContent(content);
+                    setDecryptedContent(content);
+                    setSyntax(obj.syntax);
                 } else {
-                    setShowDecryptDialog(true)
+                    setShowDecryptDialog(true);
                 }
             } catch (e) {
-                setError("Invalid paste URL.")
+                setError("Invalid paste URL.");
             }
         }
-    }, [pathname])
+    }, [pathname]);
 
 
     const handleDecrypt = () => {
@@ -94,7 +98,7 @@ export default function PastePage() {
                 <div className="flex items-center rounded-none">
                     <div className="flex items-center gap-2 space-x-4">
                         <span className="ml-2 text-xl text-neutral-400">Length: {content.length}</span>
-                        <span className="ml-2 text-xl text-neutral-400">Lines: {content.split("\n").length}</span>
+                        <span className="text-xl text-neutral-400 mr-2">Lines: {content.split("\n").length}</span>
                     </div>
                     <Button
                         variant="ghost"

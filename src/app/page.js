@@ -189,7 +189,7 @@ export default function PastePage() {
         <div className="flex items-center rounded-none">
           <div className="flex items-center gap-2 space-x-4">
             <span className="ml-2 text-xl text-neutral-400">Length: {content.length}</span>
-            <span className="ml-2 text-xl text-neutral-400">Lines: {content.split("\n").length}</span>
+            <span className="text-xl text-neutral-400 mr-2">Lines: {content.split("\n").length}</span>
           </div>
           <Button
             variant="ghost"
