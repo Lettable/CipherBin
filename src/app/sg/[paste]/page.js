@@ -102,7 +102,7 @@ export default function PastePage() {
                     </div>
                     <Button
                         variant="ghost"
-                        className="text-neutral-400 hover:bg-[#666767] hover:text-white transition-colors duration-0 rounded-none"
+                        className="text-neutral-400 hover:bg-[#666767] hover:text-white ml-2 transition-colors duration-0 rounded-none"
                         asChild
                     >
                         <a
