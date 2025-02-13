@@ -1,6 +1,7 @@
 const CACHE_NAME = 'cipherbin-cache-v2';
 const PRECACHE_URLS = [
   '/',
+  '/sg/',
   '/Paste.js',
   '/favicon.ico',
   '/globals.css',

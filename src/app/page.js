@@ -17,8 +17,8 @@ import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration"
 import gun from "@/lib/gun"
 
 const generateUUID = () => {
-  return crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random()*16|0, v = c=='x' ? r : (r&0x3|0x8);
+  return crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
 };
@@ -36,6 +36,7 @@ export default function PastePage() {
   const [decryptedContent, setDecryptedContent] = useState("")
   const [decryptPassword, setDecryptPassword] = useState("")
   const [showDecryptDialog, setShowDecryptDialog] = useState(false)
+  const [isLongUrl, setIsLongUrl] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
   const pathname = usePathname()
@@ -83,6 +84,24 @@ export default function PastePage() {
       return
     }
     setShowDialog(true)
+  }
+
+  const handleSaveLongPaste = () => {
+    const expiration = expiresAt ? new Date(expiresAt).toISOString() : "9999-12-31T23:59:59Z"
+    try {
+      const newPaste = new Paste(content, expiration, isPublic, isPublic ? null : password, syntax)
+      const encoded = Paste.encodeObject(newPaste.getObject())
+      const url = `${window.location.origin}/sg/${encoded}`
+      setPasteUrl(url)
+      setShowDialog(false)
+      setShowUrlDialog(true)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      })
+    }
   }
 
   const handleSavePaste = async () => {
@@ -168,6 +187,10 @@ export default function PastePage() {
       <footer className="bg-[#333333] p-0 flex justify-between items-center">
         {/* Left Group: GitHub and About */}
         <div className="flex items-center rounded-none">
+          <div className="flex items-center space-x-4">
+            <span className="text-neutral-400">Length: {content.length}</span>
+            <span className="text-neutral-400">Lines: {content.split("\n").length}</span>
+          </div>
           <Button
             variant="ghost"
             className="text-neutral-400 hover:bg-[#666767] hover:text-white transition-colors duration-0 rounded-none"
@@ -267,13 +290,32 @@ export default function PastePage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2 pt-2 border-t border-neutral-700">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="offline" className="flex items-center gap-2">
+                  <Save className="w-5 h-5" />
+                  Create Long URL for Offline Access
+                </Label>
+                <Switch id="offline" checked={isLongUrl} onCheckedChange={setIsLongUrl} />
+              </div>
+              {isLongUrl && (
+                <p className="text-sm text-neutral-400">
+                  This will generate a longer URL that contains the entire paste content, allowing offline access. Make
+                  sure to save this URL securely as it will be significantly longer.
+                </p>
+              )}
+            </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDialog(false)} className="flex text-black items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowDialog(false)}
+              className="flex text-black items-center gap-2"
+            >
               <X className="w-5 h-5" />
               Cancel
             </Button>
-            <Button onClick={handleSavePaste} className="flex items-center gap-2">
+            <Button onClick={isLongUrl ? handleSaveLongPaste : handleSavePaste} className="flex items-center gap-2">
               <Save className="w-5 h-5" />
               Save Paste
             </Button>
@@ -286,11 +328,23 @@ export default function PastePage() {
           <DialogHeader>
             <DialogTitle>Paste Created Successfully</DialogTitle>
           </DialogHeader>
-          <div className="flex gap-2">
-            <Input value={pasteUrl} readOnly className="bg-black border-0" />
-            <Button size="icon" onClick={() => copyToClipboard(pasteUrl)}>
-              <Copy className="w-5 h-5" />
-            </Button>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm text-neutral-400">
+                {isLongUrl ? "Long URL (contains full paste content)" : "Short URL"}
+              </Label>
+              <div className="flex gap-2">
+                <Input value={pasteUrl} readOnly className="bg-black border-0" />
+                <Button size="icon" onClick={() => copyToClipboard(pasteUrl)}>
+                  <Copy className="w-5 h-5" />
+                </Button>
+              </div>
+              {isLongUrl && (
+                <p className="text-sm text-neutral-400">
+                  ⚠️ This URL contains your entire paste content. Store it securely for offline access.
+                </p>
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>

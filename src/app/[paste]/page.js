@@ -105,47 +105,6 @@ export default function PastePage() {
   }, [pathname]);
 
 
-
-  const handleCreatePaste = () => {
-    if (!content.trim()) {
-      toast({
-        title: "Error",
-        description: "Paste content cannot be empty",
-        variant: "destructive",
-      })
-      return
-    }
-    setShowDialog(true)
-  }
-
-  const handleSavePaste = async () => {
-    const expiration = expiresAt ? new Date(expiresAt).toISOString() : "9999-12-31T23:59:59Z";
-    try {
-      const newPaste = new Paste(content, expiration, isPublic, isPublic ? null : password, syntax);
-      const encoded = Paste.encodeObject(newPaste.getObject());
-      const uuid = generateUUID();
-      gun.get('pastes').get(uuid).put({ encoded }, (ack) => {
-        if (ack.err) {
-          toast({
-            title: "Error",
-            description: ack.err,
-            variant: "destructive",
-          });
-        }
-      });
-      const url = `${window.location.origin}/${uuid}`;
-      setPasteUrl(url);
-      setShowDialog(false);
-      setShowUrlDialog(true);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleDecrypt = () => {
     const uuid = pathname.slice(1);
     gun.get('pastes').get(uuid).once((data) => {
@@ -202,6 +161,10 @@ export default function PastePage() {
       <footer className="bg-[#333333] p-0 flex justify-between items-center">
         {/* Left Group: GitHub and About */}
         <div className="flex items-center rounded-none">
+          <div className="flex items-center space-x-4">
+            <span className="text-neutral-400">Length: {content.length}</span>
+            <span className="text-neutral-400">Lines: {content.split("\n").length}</span>
+          </div>
           <Button
             variant="ghost"
             className="text-neutral-400 hover:bg-[#666767] hover:text-white transition-colors duration-0 rounded-none"
@@ -229,16 +192,6 @@ export default function PastePage() {
 
         {/* Right Group: Syntax Selector and Save Paste */}
         <div className="flex gap-4 items-center">
-
-          <Button
-            variant="ghost"
-            className="text-neutral-400 hover:bg-[#666767] hover:text-white transition-colors duration-0 rounded-none"
-            onClick={handleCreatePaste}
-          >
-            <div className="flex items-center gap-1">
-              <span className="text-xl">[Save Paste]</span>
-            </div>
-          </Button>
           <Button
             variant="ghost"
             className="text-neutral-400 hover:bg-[#666767] hover:text-white transition-colors duration-0 rounded-none"
