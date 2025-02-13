@@ -90,7 +90,7 @@ Visit [cipher.ix.tc](https://cipher.ix.tc) to create and view pastes. The workfl
 ### Command-Line Interface
 
 > **Note:**  
-> We have dropped support for native CLI scripts (e.g., `paste.bat`, `paste.sh`) in favor of our Gun.js–based approach. All paste creation and retrieval now occur via the web interface and Gun.js synchronization.
+> We have dropped support for native CLI scripts (e.g., `paste.bat`, `paste.sh`) in favor of our Gun.js–based approach. All paste creation and retrieval now occur via the web interface with Gun.js synchronization. In the event that law enforcement takes action against the bin or the Gun instance (`https://relay-server-db7s.onrender.com/gun`), your long encoded string will still be stored in your browser's local storage, indexed by a unique short UUID. Keep that long encoded string if you want your paste to persist indefinitely—even if the bin is banned or seized. You can use the `Paste.js` script in the public directory to decode your paste from your terminal untill we are Back!
 
 ## Installation
 
