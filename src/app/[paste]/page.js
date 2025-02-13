@@ -17,8 +17,8 @@ import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration"
 import gun from "@/lib/gun"
 
 const generateUUID = () => {
-  return crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random()*16|0, v = c=='x' ? r : (r&0x3|0x8);
+  return crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
 };
@@ -41,37 +41,63 @@ export default function PastePage() {
   const pathname = usePathname()
   const { toast } = useToast()
 
+  function getLocalPasteEncoded(uuid) {
+    const gunDataStr = localStorage.getItem("gun/");
+    if (!gunDataStr) return null;
+    try {
+      const gunData = JSON.parse(gunDataStr);
+      const pasteKey = `pastes/${uuid}`;
+      if (gunData && gunData[pasteKey] && gunData[pasteKey].encoded) {
+        return gunData[pasteKey].encoded;
+      }
+    } catch (e) {
+      console.error("Error parsing Gun data from localStorage:", e);
+    }
+    return null;
+  }
+
   useEffect(() => {
     async function decodePaste() {
       const uuid = pathname.slice(1);
       if (uuid) {
-        gun.get('pastes').get(uuid).on((data) => {
+        gun.get('pastes').get(uuid).once((data) => {
           if (!data || !data.encoded) {
-            setError("Paste not found.");
+            const localEncoded = getLocalPasteEncoded(uuid);
+            if (localEncoded) {
+              processData({ encoded: localEncoded });
+            } else {
+              setError("Paste not found.");
+            }
             return;
           }
-          try {
-            const obj = Paste.decodeObject(data.encoded);
-            if (new Date(obj.expiresAt) < new Date()) {
-              setError("This paste has expired.");
-              return;
-            }
-            if (obj.isPublic) {
-              const content = Buffer.from(obj.content, "base64").toString("utf8");
-              setContent(content);
-              setDecryptedContent(content);
-              setSyntax(obj.syntax);
-            } else {
-              setShowDecryptDialog(true);
-            }
-          } catch (e) {
-            setError("Invalid paste data.");
-          }
+          processData(data);
         });
       }
     }
+
+    function processData(data) {
+      try {
+        const obj = Paste.decodeObject(data.encoded);
+        if (new Date(obj.expiresAt) < new Date()) {
+          setError("This paste has expired.");
+          return;
+        }
+        if (obj.isPublic) {
+          const content = Buffer.from(obj.content, "base64").toString("utf8");
+          setContent(content);
+          setDecryptedContent(content);
+          setSyntax(obj.syntax);
+        } else {
+          setShowDecryptDialog(true);
+        }
+      } catch (e) {
+        setError("Invalid paste data.");
+      }
+    }
+
     decodePaste();
   }, [pathname]);
+
 
   const handleCreatePaste = () => {
     if (!content.trim()) {
@@ -140,7 +166,7 @@ export default function PastePage() {
       }
     });
   };
-  
+
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text)
