@@ -1,13 +1,13 @@
 const CACHE_NAME = 'cipherbin-cache-v2';
 const PRECACHE_URLS = [
   '/',
-  '/sc/mirza',
-  '/sg/mirza',
-  '/scripts/Paste.js',
-  '/scripts/favicon.ico',
+  '/sc/5ac7e8c8-0112-4580-90fb-091eca2424c0',
+  '/sg/eyJjb250ZW50IjoiYldseWVtRT0iLCJjcmVhdGVkQXQiOiIyMDI1LTAyLTE0VDA2OjUyOjA5Ljc2OFoiLCJleHBpcmVzQXQiOiI5OTk5LTEyLTMxVDIzOjU5OjU5WiIsImlzUHVibGljIjp0cnVlLCJzeW50YXgiOiJwbGFpbnRleHQiLCJzaWduYXR1cmUiOiJ0Rm9OTjBxVlcwQ1BsbmtWVUpJRGJvYXR0L1lPME1sQUtMZTRIVkd0dU1nPSJ9',
+  '/Paste.js',
+  '/favicon.ico',
   '/globals.css',
-  '/scripts/cipher.js',
-  '/scripts/compressor.js'
+  '/cipher.js',
+  '/compressor.js'
 ];
 
 self.addEventListener('install', (event) => {
