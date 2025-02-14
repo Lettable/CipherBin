@@ -10,7 +10,6 @@ import { Copy, Github, Info, Lock, Unlock, Clock, Code, Save, X } from "lucide-r
 import { useToast } from "@/hooks/use-toast"
 import { Textarea } from "@/components/ui/textarea"
 import AboutDialog from "@/components/AboutDialog"
-import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration"
 import crypto from 'crypto';
 
 class Paste {
