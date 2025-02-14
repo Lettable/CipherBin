@@ -1,5 +1,5 @@
 import { Kanit } from "next/font/google";
-import "../../public/globals.css";
+import '../style/globals.css'
 import { Toaster } from "@/components/ui/toaster";
 import Head from "next/head";
 
@@ -21,12 +21,6 @@ export const metadata = {
     description:
       "Share code and text privately with CipherBin – a secure and offline-enabled pastebin built for modern developers.",
     type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CipherBin - Secure Offline Pastebin",
-    description:
-      "A secure, offline-enabled pastebin for sharing code and text privately. Experience modern privacy with CipherBin.",
   }
 };
 

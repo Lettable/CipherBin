@@ -8,123 +8,24 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Copy, Github, Info, Lock, Unlock, Clock, Code, Save, X } from "lucide-react"
+import { Copy, Lock, Unlock, Clock, Code, Save, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Textarea } from "@/components/ui/textarea"
 import AboutDialog from "@/components/AboutDialog"
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration"
 import gun from "@/lib/gun"
-import crypto from 'crypto';
+import crypto from "crypto"
+import Paste from "@/lib/Paste"
 
 const generateUUID = () => {
-  return crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-};
-
-class Paste {
-  
-  /**
-   * Create a new Paste.
-   *
-   * @param {string} content - The raw content of the paste.
-   * @param {string} expiresAt - Expiration timestamp in ISO format.
-   * @param {boolean} isPublic - If true, no encryption is done.
-   * @param {string|null} password - Required if isPublic is false.
-   * @param {string} syntax - Language or syntax (e.g., "javascript", "python").
-  */
- 
-  constructor(content, expiresAt, isPublic, password, syntax) {
-    this.createdAt = new Date().toISOString();
-    this.expiresAt = expiresAt;
-    this.isPublic = isPublic;
-    this.syntax = syntax;
-
-    if (!isPublic && !password) {
-      throw new Error("Password is required for private pastes.");
-    }
-
-    if (isPublic) {
-      this.content = Buffer.from(content, 'utf8').toString('base64');
-      this._hmacKey = Buffer.from("public-secret", 'utf8');
-    } else {
-      this.content = this.encryptContent(content, password);
-      this._hmacKey = crypto.createHash('sha256').update(password).digest();
-    }
-
-    this.pasteObject = {
-      content: this.content,
-      createdAt: this.createdAt,
-      expiresAt: this.expiresAt,
-      isPublic: this.isPublic,
-      syntax: this.syntax
-    };
-
-    this.signature = this.computeSignature(this.pasteObject, this._hmacKey);
-    this.pasteObject.signature = this.signature;
-  }
-
-  encryptContent(plainText, password) {
-    const key = crypto.createHash('sha256').update(password).digest();
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
-    let encrypted = cipher.update(plainText, 'utf8');
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-    return Buffer.concat([iv, encrypted]).toString('base64');
-  }
-
-  computeSignature(object, key) {
-    const jsonStr = JSON.stringify(object);
-    const hmac = crypto.createHmac('sha256', key);
-    hmac.update(jsonStr);
-    return hmac.digest('base64');
-  }
-
-  getObject() {
-    return this.pasteObject;
-  }
-
-  decryptContent(password) {
-    if (this.isPublic) {
-      return Buffer.from(this.content, 'base64').toString('utf8');
-    } else {
-      if (!password) {
-        throw new Error("Password is required to decrypt this paste.");
-      }
-      const key = crypto.createHash('sha256').update(password).digest();
-      const encryptedData = Buffer.from(this.content, 'base64');
-      const iv = encryptedData.slice(0, 16);
-      const ciphertext = encryptedData.slice(16);
-      const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-      const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
-      return decrypted.toString('utf8');
-    }
-  }
-
-  static encodeObject(pasteObj) {
-    return Buffer.from(JSON.stringify(pasteObj), 'utf8').toString('base64');
-  }
-
-  static decodeObject(encodedStr) {
-    return JSON.parse(Buffer.from(encodedStr, 'base64').toString('utf8'));
-  }
-
-  static decryptPaste(pasteObj, password) {
-    if (pasteObj.isPublic) {
-      return Buffer.from(pasteObj.content, 'base64').toString('utf8');
-    } else {
-      const key = crypto.createHash('sha256').update(password).digest();
-      const encryptedData = Buffer.from(pasteObj.content, 'base64');
-      const iv = encryptedData.slice(0, 16);
-      const ciphertext = encryptedData.slice(16);
-      const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-      const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
-      return decrypted.toString('utf8');
-    }
-  }
+  return crypto.randomUUID
+    ? crypto.randomUUID()
+    : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0,
+          v = c == "x" ? r : (r & 0x3) | 0x8
+        return v.toString(16)
+      })
 }
-
 
 export default function PastePage() {
   const [content, setContent] = useState("")
@@ -133,7 +34,8 @@ export default function PastePage() {
   const [password, setPassword] = useState("")
   const [expiresAt, setExpiresAt] = useState("")
   const [syntax, setSyntax] = useState("plaintext")
-  const [pasteUrl, setPasteUrl] = useState("")
+  const [shortUrl, setShortUrl] = useState("")
+  const [longUrl, setLongUrl] = useState("")
   const [showUrlDialog, setShowUrlDialog] = useState(false)
   const [showAboutDialog, setShowAboutDialog] = useState(false)
   const [decryptedContent, setDecryptedContent] = useState("")
@@ -147,35 +49,38 @@ export default function PastePage() {
 
   useEffect(() => {
     async function decodePaste() {
-      const uuid = pathname.slice(1);
+      const uuid = pathname.slice(1)
       if (uuid) {
-        gun.get('pastes').get(uuid).on((data) => {
-          if (!data || !data.encoded) {
-            setError("Paste not found.");
-            return;
-          }
-          try {
-            const obj = Paste.decodeObject(data.encoded);
-            if (new Date(obj.expiresAt) < new Date()) {
-              setError("This paste has expired.");
-              return;
+        gun
+          .get("pastes")
+          .get(uuid)
+          .on((data) => {
+            if (!data || !data.encoded) {
+              setError("Paste not found.")
+              return
             }
-            if (obj.isPublic) {
-              const content = Buffer.from(obj.content, "base64").toString("utf8");
-              setContent(content);
-              setDecryptedContent(content);
-              setSyntax(obj.syntax);
-            } else {
-              setShowDecryptDialog(true);
+            try {
+              const obj = Paste.decodeObject(data.encoded)
+              if (new Date(obj.expiresAt) < new Date()) {
+                setError("This paste has expired.")
+                return
+              }
+              if (obj.isPublic) {
+                const content = Buffer.from(obj.content, "base64").toString("utf8")
+                setContent(content)
+                setDecryptedContent(content)
+                setSyntax(obj.syntax)
+              } else {
+                setShowDecryptDialog(true)
+              }
+            } catch (e) {
+              setError("Invalid paste data.")
             }
-          } catch (e) {
-            setError("Invalid paste data.");
-          }
-        });
+          })
       }
     }
-    decodePaste();
-  }, [pathname]);
+    decodePaste()
+  }, [pathname])
 
   const handleCreatePaste = () => {
     if (!content.trim()) {
@@ -189,13 +94,34 @@ export default function PastePage() {
     setShowDialog(true)
   }
 
-  const handleSaveLongPaste = () => {
+  const handleSavePaste = async () => {
     const expiration = expiresAt ? new Date(expiresAt).toISOString() : "9999-12-31T23:59:59Z"
     try {
       const newPaste = new Paste(content, expiration, isPublic, isPublic ? null : password, syntax)
       const encoded = Paste.encodeObject(newPaste.getObject())
-      const url = `${window.location.origin}/sg/${encoded}`
-      setPasteUrl(url)
+      const uuid = generateUUID()
+      gun
+        .get("pastes")
+        .get(uuid)
+        .put({ encoded }, (ack) => {
+          if (ack.err) {
+            toast({
+              title: "Error",
+              description: ack.err,
+              variant: "destructive",
+            })
+          }
+        })
+      const shortUrl = `${window.location.origin}/pst/${uuid}`
+      setShortUrl(shortUrl)
+
+      if (isLongUrl) {
+        const longUrl = `${encoded}`
+        setLongUrl(longUrl)
+      } else {
+        setLongUrl("")
+      }
+
       setShowDialog(false)
       setShowUrlDialog(true)
     } catch (error) {
@@ -207,61 +133,36 @@ export default function PastePage() {
     }
   }
 
-  const handleSavePaste = async () => {
-    const expiration = expiresAt ? new Date(expiresAt).toISOString() : "9999-12-31T23:59:59Z";
-    try {
-      const newPaste = new Paste(content, expiration, isPublic, isPublic ? null : password, syntax);
-      const encoded = Paste.encodeObject(newPaste.getObject());
-      const uuid = generateUUID();
-      gun.get('pastes').get(uuid).put({ encoded }, (ack) => {
-        if (ack.err) {
+  const handleDecrypt = () => {
+    const uuid = pathname.slice(1)
+    gun
+      .get("pastes")
+      .get(uuid)
+      .once((data) => {
+        if (!data || !data.encoded) {
           toast({
             title: "Error",
-            description: ack.err,
+            description: "Paste not found.",
             variant: "destructive",
-          });
+          })
+          return
         }
-      });
-      const url = `${window.location.origin}/sc/${uuid}`;
-      setPasteUrl(url);
-      setShowDialog(false);
-      setShowUrlDialog(true);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDecrypt = () => {
-    const uuid = pathname.slice(1);
-    gun.get('pastes').get(uuid).once((data) => {
-      if (!data || !data.encoded) {
-        toast({
-          title: "Error",
-          description: "Paste not found.",
-          variant: "destructive",
-        });
-        return;
-      }
-      try {
-        const obj = Paste.decodeObject(data.encoded);
-        const content = Paste.decryptPaste(obj, decryptPassword);
-        setContent(content);
-        setDecryptedContent(content);
-        setSyntax(obj.syntax);
-        setShowDecryptDialog(false);
-      } catch (e) {
-        toast({
-          title: "Error",
-          description: "Incorrect password",
-          variant: "destructive",
-        });
-      }
-    });
-  };
+        try {
+          const obj = Paste.decodeObject(data.encoded)
+          const content = Paste.decryptPaste(obj, decryptPassword)
+          setContent(content)
+          setDecryptedContent(content)
+          setSyntax(obj.syntax)
+          setShowDecryptDialog(false)
+        } catch (e) {
+          toast({
+            title: "Error",
+            description: "Incorrect password",
+            variant: "destructive",
+          })
+        }
+      })
+  }
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text)
@@ -282,7 +183,7 @@ export default function PastePage() {
             onChange={(e) => setContent(e.target.value)}
             placeholder="Start typing..."
             className="w-full min-h-[95vh] p-3 bg-black text-white border-0 resize-none focus:outline-none"
-            style={{ fontSize: '20px', lineHeight: '20px' }}
+            style={{ fontSize: "20px", lineHeight: "20px" }}
           />
         )}
       </main>
@@ -321,7 +222,6 @@ export default function PastePage() {
 
         {/* Right Group: Syntax Selector and Save Paste */}
         <div className="flex gap-4 items-center">
-
           <Button
             variant="ghost"
             className="text-neutral-400 hover:bg-[#666767] hover:text-white transition-colors duration-0 rounded-none"
@@ -403,7 +303,7 @@ export default function PastePage() {
               </div>
               {isLongUrl && (
                 <p className="text-sm text-neutral-400">
-                  This will generate a longer URL that contains the entire paste content, allowing offline access. Make
+                  This will generate a longer encoded string that contains the entire paste content, allowing offline access. Make
                   sure to save this URL securely as it will be significantly longer.
                 </p>
               )}
@@ -418,7 +318,7 @@ export default function PastePage() {
               <X className="w-5 h-5" />
               Cancel
             </Button>
-            <Button onClick={isLongUrl ? handleSaveLongPaste : handleSavePaste} className="flex items-center gap-2">
+            <Button onClick={handleSavePaste} className="flex items-center gap-2">
               <Save className="w-5 h-5" />
               Save Paste
             </Button>
@@ -433,21 +333,28 @@ export default function PastePage() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-sm text-neutral-400">
-                {isLongUrl ? "Long URL (contains full paste content)" : "Short URL"}
-              </Label>
+              <Label className="text-sm text-neutral-400">Short URL</Label>
               <div className="flex gap-2">
-                <Input value={pasteUrl} readOnly className="bg-black border-0" />
-                <Button size="icon" onClick={() => copyToClipboard(pasteUrl)}>
+                <Input value={shortUrl} readOnly className="bg-black border-0" />
+                <Button size="icon" onClick={() => copyToClipboard(shortUrl)}>
                   <Copy className="w-5 h-5" />
                 </Button>
               </div>
-              {isLongUrl && (
-                <p className="text-sm text-neutral-400">
-                  ⚠️ This URL contains your entire paste content. Store it securely for offline access.
-                </p>
-              )}
             </div>
+            {isLongUrl && (
+              <div className="space-y-2">
+                <Label className="text-sm text-neutral-400">Encoded String (contains full paste content)</Label>
+                <div className="flex gap-2">
+                  <Input value={longUrl} readOnly className="bg-black border-0" />
+                  <Button size="icon" onClick={() => copyToClipboard(longUrl)}>
+                    <Copy className="w-5 h-5" />
+                  </Button>
+                </div>
+                <p className="text-sm text-neutral-400">
+                  ⚠️ This String contains your entire paste content. Store it securely for offline access.
+                </p>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
