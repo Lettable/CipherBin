@@ -64,7 +64,12 @@ export default function PastePage() {
 
 
   const handleDecrypt = () => {
-    const uuid = pathname.slice(1);
+    let uuid = pathname.slice(1);
+    const prefix = "pst/";
+    if (uuid.startsWith(prefix)) {
+      uuid = uuid.slice(prefix.length);
+    }
+    if (!uuid) return;
     gun.get('pastes').get(uuid).once((data) => {
       if (!data || !data.encoded) {
         toast({
