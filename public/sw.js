@@ -1,8 +1,8 @@
 const CACHE_NAME = 'cipherbin-cache-v2';
 const PRECACHE_URLS = [
   '/',
-  '/sc/5ac7e8c8-0112-4580-90fb-091eca2424c0',
-  '/sg/eyJjb250ZW50IjoiYldseWVtRT0iLCJjcmVhdGVkQXQiOiIyMDI1LTAyLTE0VDA2OjUyOjA5Ljc2OFoiLCJleHBpcmVzQXQiOiI5OTk5LTEyLTMxVDIzOjU5OjU5WiIsImlzUHVibGljIjp0cnVlLCJzeW50YXgiOiJwbGFpbnRleHQiLCJzaWduYXR1cmUiOiJ0Rm9OTjBxVlcwQ1BsbmtWVUpJRGJvYXR0L1lPME1sQUtMZTRIVkd0dU1nPSJ9',
+  '/sc/4',
+  '/sg/4',
   '/favicon.ico',
   '/globals.css',
   '/cipher.js',
