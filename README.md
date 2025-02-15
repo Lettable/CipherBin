@@ -48,6 +48,9 @@ CipherBin is an open‑source pastebin service designed to give you full control
 - **Modern, Secure UI:**  
   A minimalistic, offline‑enabled web interface built with Next.js offers a seamless experience for both creation and viewing of pastes.
 
+> **Milestone**
+> Store up to 19 million words at zero cost using state‑of‑the‑art cryptography and a fully decentralized database with permanent access. This is a huge milestone—remember, no one, not even the FBI, can see your pastes because we don’t rely on a central server!
+
 ## Architecture & Implementation
 
 ### Decentralized Storage with Gun.js
